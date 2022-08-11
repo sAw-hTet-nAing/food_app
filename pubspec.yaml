@@ -34,6 +34,15 @@ dependencies:
   update: ^0.3.1
   webview_flutter: ^3.0.4
   cached_network_image: ^3.2.1
+  persistent_bottom_nav_bar_v2: ^4.2.4
+  shared_preferences: ^2.0.15
+  intl: ^0.17.0
+  
+  geocoding: ^2.0.4
+  geolocator: ^9.0.1
+  google_maps_flutter: ^2.1.10
+  google_map_location_picker_flutter: ^2.0.3
+
 
 
   # The following adds the Cupertino Icons font to your application.

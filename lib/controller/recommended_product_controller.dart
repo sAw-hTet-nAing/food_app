@@ -21,7 +21,7 @@ class RecommendedProductController extends GetxController {
     if (response.statusCode == 200) {
       _recommendedProductList = [];
       _recommendedProductList.addAll(Product.fromJson(response.body).products);
-      print(recommendedProductList);
+      // print(recommendedProductList);
 
       _isloaded = true;
       update();

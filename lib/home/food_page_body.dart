@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:store_app/controller/recommended_product_controller.dart';
 import 'package:store_app/controller/popular_product_controller.dart';
-import 'package:store_app/pages/food/popular_food_detail.dart';
 import 'package:store_app/route/route_helper.dart';
 import 'package:store_app/util/app_constant.dart';
 import 'package:store_app/util/dimension.dart';
 import 'package:store_app/widgets/app_column.dart';
 import 'package:store_app/widgets/big_text.dart';
-import 'package:store_app/model/popular_product_model.dart';
 import 'package:store_app/widgets/small_text.dart';
 
 class FoodPageBody extends StatefulWidget {
@@ -40,6 +38,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
   @override
   void dispose() {
     pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -211,7 +210,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       GetBuilder<RecommendedProductController>(builder: (recommendedProduct) {
         return recommendedProduct.isloaded
             ? SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
+                physics: ScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.4,

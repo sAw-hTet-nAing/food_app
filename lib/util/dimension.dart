@@ -44,4 +44,7 @@ class Dimensions {
 
   //category
   static double catpost = screeWidth / 13.8;
+  //splash scree
+  static double splashImgwidth = screeWidth / 1.175;
+  static double splashImgheight = screeHigh / 2.044;
 }

@@ -32,7 +32,11 @@ class LocationController extends GetxController implements GetxService {
   Placemark get pickPlacemark => _pickPlacemark;
 
   late GoogleMapController _mapController;
+
   GoogleMapController get mapController => _mapController;
+  void setMapController(GoogleMapController mapController) {
+    _mapController = mapController;
+  }
 
   bool _updateAddressData = true;
   bool _changeAddress = true;
@@ -40,9 +44,6 @@ class LocationController extends GetxController implements GetxService {
   Position get postion => _position;
   Position get pickPosition => _pickPosition;
   bool get loading => _loading;
-  void setMapController(GoogleMapController mapController) {
-    _mapController = mapController;
-  }
 
   void updatePosition(CameraPosition position, bool fromAddress) async {
     if (_updateAddressData) {

@@ -14,20 +14,21 @@ class AddressModel {
         removing required
          */
       contactPersonNumber,
-      required address,
-      required latitude,
-      required longitude,
+      address,
+      latitude,
+      longitude,
       contactPersonName}) {
-    this._id = id;
-    this._addressType = addressType;
-    this._address = address;
-    this._longitude = longitude;
-    this._latitude = latitude;
-    this._contactPersonName = contactPersonName;
-    this._contactPersonNumber = contactPersonNumber;
+    _id = id;
+    _addressType = addressType;
+    _address = address;
+    _longitude = longitude;
+    _latitude = latitude;
+    _contactPersonName = contactPersonName;
+    _contactPersonNumber = contactPersonNumber;
   }
 
   String get address => _address;
+  String get addressType => _addressType;
   String get latitude => _latitude;
   String get longitude => _longitude;
   String? get contactPersonName => _contactPersonName;
@@ -36,12 +37,12 @@ class AddressModel {
   AddressModel.fromJson(Map<String, dynamic> json) {
     _id = json['id'];
     _addressType = json['address_type'] ?? "";
-    _contactPersonNumber = json['contact_person_number'];
+    _contactPersonNumber = json['contact_person_number'] ?? "";
     _address = json['address'];
     _latitude = json['latitude'] ?? "";
     _longitude = json['longitude'] ?? "";
 
-    _contactPersonName = json['contact_person_name'];
+    _contactPersonName = json['contact_person_name'] ?? "";
   }
 
   Map<String, dynamic> toJson() {

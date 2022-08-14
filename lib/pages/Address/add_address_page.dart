@@ -73,7 +73,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                     '${locationcontroller.placemark.locality ?? ''}'
                     '${locationcontroller.placemark.postalCode ?? ''}'
                     '${locationcontroller.placemark.country ?? ''}';
-                // print("Address in my view" + _addressController.text);
+                print("Address in my view" + _addressController.text);
                 return SingleChildScrollView(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import 'package:store_app/controller/auth_controller.dart';
 import 'package:store_app/controller/cart_controller.dart';
+import 'package:store_app/controller/location_controller.dart';
 import 'package:store_app/controller/user_controller.dart';
 import 'package:store_app/route/route_helper.dart';
 import 'package:store_app/util/dimension.dart';
@@ -13,6 +14,17 @@ import 'package:store_app/widgets/customloader.dart';
 
 class AccountPage extends StatelessWidget {
   const AccountPage({Key? key}) : super(key: key);
+
+  _loadUserInfo() async {
+    await Get.find<LocationController>().getAddressList();
+    if (Get.find<LocationController>().addressList.isNotEmpty) {
+      var address = Get.find<LocationController>().addressList[0];
+      await Get.find<LocationController>().saveUserAddress(address);
+      print("I am in home page ............");
+    } else {
+      print("addresslist is empty");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -15,17 +15,6 @@ import 'package:store_app/widgets/customloader.dart';
 class AccountPage extends StatelessWidget {
   const AccountPage({Key? key}) : super(key: key);
 
-  _loadUserInfo() async {
-    await Get.find<LocationController>().getAddressList();
-    if (Get.find<LocationController>().addressList.isNotEmpty) {
-      var address = Get.find<LocationController>().addressList[0];
-      await Get.find<LocationController>().saveUserAddress(address);
-      print("I am in home page ............");
-    } else {
-      print("addresslist is empty");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     bool _userLoggedin = Get.find<AuthController>().UserLogin();
@@ -75,7 +64,7 @@ class AccountPage extends StatelessWidget {
                                     iconSize: Dimensions.height10 * 5 / 2,
                                   ),
                                   bigText: BigText(
-                                    text: '${userController.userModel.fName}',
+                                    text: '${userController.userModel?.fName}',
                                   )),
                               SizedBox(
                                 height: Dimensions.width10,
@@ -91,7 +80,7 @@ class AccountPage extends StatelessWidget {
                                   ),
                                   bigText: BigText(
                                       text:
-                                          '${userController.userModel.phone}')),
+                                          '${userController.userModel?.phone}')),
                               SizedBox(
                                 height: Dimensions.width10,
                               ),
@@ -106,22 +95,52 @@ class AccountPage extends StatelessWidget {
                                   ),
                                   bigText: BigText(
                                       text:
-                                          '${userController.userModel.email}')),
+                                          '${userController.userModel?.email}')),
                               SizedBox(
                                 height: Dimensions.width10,
                               ),
                               //address
-                              AccountWidget(
-                                  appIcon: AppIcon(
-                                    icon: Icons.location_on_outlined,
-                                    backgroundColor: Colors.amber,
-                                    iconColor: Colors.white,
-                                    size: Dimensions.height10 * 5,
-                                    iconSize: Dimensions.height10 * 5 / 2,
-                                  ),
-                                  bigText: BigText(
-                                    text: "Fill your address",
-                                  )),
+                              GetBuilder<LocationController>(
+                                  builder: (locationCotroller) {
+                                if (_userLoggedin &&
+                                    locationCotroller.addressList.isEmpty) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Get.toNamed(
+                                          RouteHelper.getAddAddressPage());
+                                    },
+                                    child: AccountWidget(
+                                        appIcon: AppIcon(
+                                          icon: Icons.location_on_outlined,
+                                          backgroundColor: Colors.amber,
+                                          iconColor: Colors.white,
+                                          size: Dimensions.height10 * 5,
+                                          iconSize: Dimensions.height10 * 5 / 2,
+                                        ),
+                                        bigText: BigText(
+                                          text: "Fill your address",
+                                        )),
+                                  );
+                                } else {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Get.offNamed(
+                                          RouteHelper.getAddAddressPage());
+                                    },
+                                    child: AccountWidget(
+                                        appIcon: AppIcon(
+                                          icon: Icons.location_on_outlined,
+                                          backgroundColor: Colors.amber,
+                                          iconColor: Colors.white,
+                                          size: Dimensions.height10 * 5,
+                                          iconSize: Dimensions.height10 * 5 / 2,
+                                        ),
+                                        bigText: BigText(
+                                          text: "Your address",
+                                        )),
+                                  );
+                                }
+                              }),
                               SizedBox(
                                 height: Dimensions.width10,
                               ),
@@ -148,6 +167,8 @@ class AccountPage extends StatelessWidget {
                                     Get.find<CartController>().clear();
                                     Get.find<CartController>()
                                         .clearCartHistory();
+                                    Get.find<LocationController>()
+                                        .clearAddressList();
                                     Get.offNamed(RouteHelper.getSplashPage());
                                   }
                                 },

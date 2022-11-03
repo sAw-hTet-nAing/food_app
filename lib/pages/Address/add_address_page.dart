@@ -6,6 +6,8 @@ import 'package:store_app/controller/auth_controller.dart';
 import 'package:store_app/controller/location_controller.dart';
 import 'package:store_app/controller/user_controller.dart';
 import 'package:store_app/model/address_model.dart';
+import 'package:store_app/pages/Address/pick_address_map.dart';
+import 'package:store_app/route/route_helper.dart';
 import 'package:store_app/util/dimension.dart';
 import 'package:store_app/widgets/app_text_field.dart';
 import 'package:store_app/widgets/big_text.dart';
@@ -23,8 +25,9 @@ class _AddAddressPageState extends State<AddAddressPage> {
   final TextEditingController _contactPersonNumber = TextEditingController();
   late bool _islogged;
   CameraPosition _cameraPosition = CameraPosition(
-      target: LatLng(19.668090000000063, 97.21409000000006), zoom: 17);
-  late LatLng _initialPosition = LatLng(19.668090000000063, 97.21409000000006);
+      target: LatLng(45.521708425968995, -122.67854869365692), zoom: 17);
+  late LatLng _initialPosition =
+      LatLng(45.521708425968995, -122.67854869365692);
 
   @override
   void initState() {
@@ -34,6 +37,14 @@ class _AddAddressPageState extends State<AddAddressPage> {
       Get.find<UserController>().getUserInfo();
     }
     if (Get.find<LocationController>().addressList.isNotEmpty) {
+      //bug fix
+      if (Get.find<LocationController>().getUserAddressFromLocalStorage() ==
+          ""
+              "") {
+        Get.find<LocationController>()
+            .saveUserAddress(Get.find<LocationController>().addressList.last);
+      }
+      Get.find<LocationController>().getUserAddress();
       _cameraPosition = CameraPosition(
           target: LatLng(
               double.parse(
@@ -52,6 +63,16 @@ class _AddAddressPageState extends State<AddAddressPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: true,
+          leading: GestureDetector(
+            child: Icon(
+              Icons.arrow_back_ios_new_sharp,
+              size: Dimensions.iconSize16,
+            ),
+            onTap: () {
+              Get.back();
+            },
+          ),
           title: Text("Address"),
           backgroundColor: Colors.green,
         ),
@@ -59,8 +80,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
           builder: (userController) {
             if (userController.userModel != null &&
                 _contactPersonName.text.isEmpty) {
-              _contactPersonName.text = '${userController.userModel.fName}';
-              _contactPersonNumber.text = '${userController.userModel.phone}';
+              _contactPersonName.text = '${userController.userModel?.fName}';
+              _contactPersonNumber.text = '${userController.userModel?.phone}';
               if (Get.find<LocationController>().addressList.isNotEmpty) {
                 _addressController.text =
                     Get.find<LocationController>().getUserAddress().address;
@@ -91,6 +112,15 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                   Border.all(width: 2, color: Colors.black)),
                           child: Stack(children: [
                             GoogleMap(
+                              onTap: (LatLng) {
+                                Get.toNamed(RouteHelper.getPickAddressPage(),
+                                    arguments: PickAddressMap(
+                                      fromSingup: false,
+                                      fromAddress: true,
+                                      googleMapController:
+                                          locationcontroller.mapController,
+                                    ));
+                              },
                               initialCameraPosition: CameraPosition(
                                   target: _initialPosition, zoom: 17),
                               zoomControlsEnabled: false,
@@ -107,6 +137,9 @@ class _AddAddressPageState extends State<AddAddressPage> {
                               }),
                               onMapCreated: (GoogleMapController controller) {
                                 locationcontroller.setMapController(controller);
+                                if (Get.find<LocationController>()
+                                    .addressList
+                                    .isEmpty) {}
                               },
                             )
                             // showGoogleMapLocationPicker(
@@ -270,7 +303,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                           .addAddress(_addressModel)
                           .then((response) {
                         if (response.isSucess) {
-                          Get.back();
+                          Get.toNamed(RouteHelper.getInitial());
                           Get.snackbar("Address", "Address Save Successfully");
                         } else {
                           Get.snackbar("Error", "Address Didn't Save");

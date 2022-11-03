@@ -35,4 +35,18 @@ class LocationRepo {
     return await sharedPreferences.setString(
         AppConstant.ADD_USERADDRESS, address);
   }
+
+  Future<Response> getZone(String lat, String lng) async {
+    return await apiClient.getData("${AppConstant.ZONE_URI}?lat=$lat&lng=$lng");
+  }
+
+  Future<Response> searchLocation(String text) async {
+    return await apiClient
+        .getData('${AppConstant.SEARCH_LOCATION_URI}?search_text=$text');
+  }
+
+  Future<Response> setLocation(String placeID) async {
+    return await apiClient
+        .getData('${AppConstant.PLACE_DETAILS_URI}?placeid=$placeID');
+  }
 }

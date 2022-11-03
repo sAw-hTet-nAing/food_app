@@ -6,11 +6,11 @@ import 'package:store_app/model/user_model.dart';
 class UserController extends GetxController implements GetxService {
   final UserRepo userRepo;
   UserController({required this.userRepo});
-  late UserModel _userModel;
+  UserModel? _userModel;
   bool _isloading = false;
   bool get isloading => _isloading;
 
-  UserModel get userModel => _userModel;
+  UserModel? get userModel => _userModel;
   Future<ResponseModel> getUserInfo() async {
     late ResponseModel _responseModel;
     Response response = await userRepo.getUserInfo();

@@ -9,7 +9,7 @@ import 'package:store_app/model/cart_model.dart';
 import 'package:store_app/route/route_helper.dart';
 import 'package:store_app/util/app_constant.dart';
 import 'package:store_app/util/dimension.dart';
-import 'package:store_app/widgets/app_icon.dart';
+
 import 'package:store_app/widgets/big_text.dart';
 
 class CartHistory extends StatelessWidget {

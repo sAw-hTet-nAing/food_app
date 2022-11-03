@@ -57,50 +57,6 @@ class CartPage extends StatelessWidget {
         ),
         body: Stack(
           children: [
-            // Positioned(
-            //   left: Dimensions.width20,
-            //   right: Dimensions.width20,
-            //   height: Dimensions.height20 * 4.5,
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       GestureDetector(
-            //         onTap: () {
-            //           // Get.to();
-            //         },
-            //         child: AppIcon(
-            //           icon: Icons.arrow_back_ios_outlined,
-            //           iconColor: Colors.white,
-            //           backgroundColor: Colors.green,
-            //           size: 40,
-            //         ),
-            //       ),
-            //       SizedBox(
-            //         width: Dimensions.width20 * 7,
-            //       ),
-            //       GestureDetector(
-            //         onTap: () {
-            //           Get.to(MainFoodPage());
-            //         },
-            //         child: AppIcon(
-            //           icon: Icons.home_outlined,
-            //           iconColor: Colors.white,
-            //           backgroundColor: Colors.black38,
-            //           size: 40,
-            //         ),
-            //       ),
-            //       AppIcon(
-            //         icon: Icons.shopping_cart_outlined,
-            //         iconColor: Colors.white,
-            //         backgroundColor: Colors.green,
-            //         size: 40,
-            //       ),
-            //       SizedBox(
-            //         width: Dimensions.width10 / 8,
-            //       )
-            //     ],
-            //   ),
-            // ),
             GetBuilder<CartController>(builder: (_cartController) {
               return _cartController.getItems.length > 0
                   ? Positioned(
@@ -349,10 +305,13 @@ class CartPage extends StatelessWidget {
                         GestureDetector(
                           onTap: () {
                             if (Get.find<AuthController>().UserLogin()) {
+                              print("loggedin?");
                               if (Get.find<LocationController>()
                                   .addressList
                                   .isEmpty) {
                                 Get.toNamed(RouteHelper.getAddAddressPage());
+                              } else {
+                                Get.offNamed(RouteHelper.getInitial());
                               }
                               cartProduct.addTOHistory();
                             } else {

@@ -1,8 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:store_app/home/main_food_page.dart';
-import 'package:store_app/pages/cart/cart_page.dart';
 import 'package:store_app/route/route_helper.dart';
 import 'package:store_app/util/app_constant.dart';
 import 'package:store_app/util/dimension.dart';

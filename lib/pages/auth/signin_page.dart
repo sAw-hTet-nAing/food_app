@@ -1,9 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
+
 import 'package:store_app/base/show_custom_snackbar.dart';
 import 'package:store_app/controller/auth_controller.dart';
 import 'package:store_app/pages/auth/signup_page.dart';
@@ -11,8 +9,6 @@ import 'package:store_app/route/route_helper.dart';
 import 'package:store_app/util/dimension.dart';
 import 'package:store_app/widgets/app_text_field.dart';
 import 'package:store_app/widgets/customloader.dart';
-
-import '../../model/signup_body_model.dart';
 
 class SignInPage extends StatelessWidget {
   const SignInPage({Key? key}) : super(key: key);

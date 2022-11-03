@@ -1,13 +1,16 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:store_app/data/api/api_checker.dart';
+
 import 'package:store_app/data/repository/location_repo.dart';
 import 'package:store_app/model/address_model.dart';
 import 'package:store_app/model/response_model.dart';
+import 'package:google_maps_webservice/src/places.dart';
 
 class LocationController extends GetxController implements GetxService {
   LocationRepo locationRepo;
@@ -45,6 +48,18 @@ class LocationController extends GetxController implements GetxService {
   Position get pickPosition => _pickPosition;
   bool get loading => _loading;
 
+  //service Zone
+  bool _isloading = false;
+  bool get isloading => _isloading;
+  //whether the user is in service zone or not
+  bool _inZone = false;
+  bool get inZone => _inZone;
+  //Showing and hiding button
+  bool _buttonDisable = true;
+  bool get buttonDisable => _buttonDisable;
+  //Save the googlemap suggestions for address
+  List<Prediction> _predictionList = [];
+
   void updatePosition(CameraPosition position, bool fromAddress) async {
     if (_updateAddressData) {
       _loading = true;
@@ -71,25 +86,28 @@ class LocationController extends GetxController implements GetxService {
               speedAccuracy: 1,
               speed: 1);
         }
+        ResponseModel _responseModel = await getZone(
+            position.target.latitude.toString(),
+            position.target.longitude.toString(),
+            false);
+        //if button value is false we are in the service area
+        _buttonDisable = !_responseModel.isSucess;
         if (_changeAddress) {
           String _address = await getAddressFromGeoCode(
               LatLng(position.target.latitude, position.target.longitude));
           fromAddress
               ? _placemark = Placemark(name: _address)
               : _pickPlacemark = Placemark(name: _address);
+        } else {
+          _changeAddress = true;
         }
       } catch (e) {
-        _pickPosition = Position(
-            latitude: position.target.latitude,
-            longitude: position.target.longitude,
-            timestamp: DateTime.now(),
-            heading: 1,
-            accuracy: 1,
-            altitude: 1,
-            speedAccuracy: 1,
-            speed: 1);
         print(e);
       }
+      _loading = false;
+      update();
+    } else {
+      _updateAddressData = true;
     }
   }
 
@@ -102,6 +120,7 @@ class LocationController extends GetxController implements GetxService {
     } else {
       print("error getting googleapi");
     }
+    update();
     return _address;
   }
 
@@ -137,6 +156,7 @@ class LocationController extends GetxController implements GetxService {
       print("Cant save the address");
       responseModel = ResponseModel(true, response.statusText!);
     }
+
     update();
     return responseModel;
   }
@@ -160,5 +180,171 @@ class LocationController extends GetxController implements GetxService {
   Future<bool> saveUserAddress(AddressModel addressModel) async {
     String userAddress = jsonEncode(addressModel.toJson());
     return await locationRepo.saveUserAddress(userAddress);
+  }
+
+  void clearAddressList() {
+    _addressList = [];
+    _allAddressList = [];
+    update();
+  }
+
+  String getUserAddressFromLocalStorage() {
+    return locationRepo.getUserAddress();
+  }
+
+  void setAddAddressData() {
+    _position = _pickPosition;
+    _placemark = _pickPlacemark;
+    _updateAddressData = false;
+    update();
+  }
+
+  Future<ResponseModel> getZone(String lat, String lng, bool markerLoad) async {
+    late ResponseModel _responseModel;
+    if (markerLoad) {
+      _loading = true;
+    } else {
+      _isloading = true;
+    }
+    update();
+    Response response = await locationRepo.getZone(lat, lng);
+    if (response.statusCode == 200) {
+      _inZone = true;
+      _responseModel = ResponseModel(true, response.body["zone_id"].toString());
+    } else {
+      _inZone = false;
+      _responseModel = ResponseModel(true, response.statusText!);
+    }
+    if (markerLoad) {
+      _loading = false;
+    } else {
+      _isloading = false;
+    }
+    //for debuging
+    print("Zone response code is" + response.statusCode.toString());
+    update();
+    return _responseModel;
+  }
+
+  Future<AddressModel> getCurrentLocation(bool fromAddress,
+      {required GoogleMapController mapController,
+      LatLng? defaultLatLng,
+      bool notify = true}) async {
+    _loading = true;
+    if (notify) {
+      update();
+    }
+    AddressModel _addressModel;
+    Position _myPosition;
+    try {
+      Position newLocalData = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best);
+      _myPosition = newLocalData;
+      // print("I am from getcurrentPos1 "+defaultLatLng!.latitude.toString());
+    } catch (e) {
+      _myPosition = Position(
+        latitude:
+            defaultLatLng != null ? defaultLatLng.latitude : double.parse('0'),
+        longitude:
+            defaultLatLng != null ? defaultLatLng.longitude : double.parse('0'),
+        timestamp: DateTime.now(),
+        accuracy: 1,
+        altitude: 1,
+        heading: 1,
+        speed: 1,
+        speedAccuracy: 1,
+      );
+    }
+    if (fromAddress) {
+      _position = _myPosition;
+    } else {
+      _pickPosition = _myPosition;
+    }
+    if (mapController != null) {
+      mapController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+            target: LatLng(_myPosition.latitude, _myPosition.longitude),
+            zoom: 17),
+      ));
+    }
+    Placemark _myPlaceMark;
+    try {
+      if (!GetPlatform.isWeb) {
+        List<Placemark> placeMarks = await placemarkFromCoordinates(
+            _myPosition.latitude, _myPosition.longitude);
+        _myPlaceMark = placeMarks.first;
+      } else {
+        String _address = await getAddressFromGeoCode(
+            LatLng(_myPosition.latitude, _myPosition.longitude));
+        _myPlaceMark = Placemark(
+            name: _address, locality: '', postalCode: '', country: '');
+      }
+    } catch (e) {
+      String _address = await getAddressFromGeoCode(
+          LatLng(_myPosition.latitude, _myPosition.longitude));
+      _myPlaceMark =
+          Placemark(name: _address, locality: '', postalCode: '', country: '');
+    }
+    fromAddress ? _placemark = _myPlaceMark : _pickPlacemark = _myPlaceMark;
+    ResponseModel _responseModel = await getZone(
+        _myPosition.latitude.toString(),
+        _myPosition.longitude.toString(),
+        true);
+    _buttonDisable = !_responseModel.isSucess;
+    _addressModel = AddressModel(
+      latitude: _myPosition.latitude.toString(),
+      longitude: _myPosition.longitude.toString(), addressType: 'others',
+      //zoneId: _responseModel.isSuccess ? int.parse(_responseModel.message) : 0,
+      address: '${_myPlaceMark.name ?? ''}'
+          ' ${_myPlaceMark.locality ?? ''} '
+          '${_myPlaceMark.postalCode ?? ''} '
+          '${_myPlaceMark.country ?? ''}',
+    );
+    _loading = false;
+    update();
+    return _addressModel;
+  }
+
+  Future<List<Prediction>> searchLocation(
+      BuildContext context, String text) async {
+    if (text.isNotEmpty) {
+      Response response = await locationRepo.searchLocation(text);
+      if (response == 200 && response.body['status'] == 'OK') {
+        _predictionList = [];
+        response.body['predictions'].forEach((prediction) =>
+            _predictionList.add(Prediction.fromJson(prediction)));
+      } else {
+        ApiChecker.checkApi(response);
+      }
+    }
+    return _predictionList;
+  }
+
+  setLocation(
+      String placeID, String address, GoogleMapController mapController) async {
+    _loading = true;
+    update();
+    PlacesDetailsResponse detail;
+    Response response = await locationRepo.setLocation(placeID);
+    detail = PlacesDetailsResponse.fromJson(response.body);
+    _pickPosition = Position(
+        latitude: detail.result.geometry!.location.lat,
+        longitude: detail.result.geometry!.location.lng,
+        timestamp: DateTime.now(),
+        accuracy: 1,
+        altitude: 1,
+        heading: 1,
+        speedAccuracy: 1,
+        speed: 1);
+    _pickPlacemark = Placemark(name: address);
+    _changeAddress = false;
+    if (!mapController.isNull) {
+      mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+          target: LatLng(detail.result.geometry!.location.lat,
+              detail.result.geometry!.location.lng),
+          zoom: 17)));
+    }
+    _loading = false;
+    update();
   }
 }

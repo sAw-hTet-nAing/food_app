@@ -136,9 +136,13 @@ class _PickAddressMapState extends State<PickAddressMap> {
                         )
                       : CustomButton(
                           width: Dimensions.width30 * 9,
-                          buttonText: widget.fromAddress
-                              ? "Pick Address"
-                              : "Pick Location",
+                          buttonText:
+                              //  locationController.inZone
+                              //     ?
+                              widget.fromAddress
+                                  ? "Pick Address"
+                                  : "Pick Location",
+                          // : "Service is not available in your area",
                           onPressed: (locationController.buttonDisable ||
                                   locationController.loading)
                               ? null
